@@ -31,9 +31,31 @@ module.exports = {
 
   create_carMark: asyncHandler(async (req, res, next) => {
     const mark = await carMark.create(req.body);
+    let data;
+    if (req.files.img) {
+      const image = req.files.img;
+      image.name = `/tma/uploads/carMark/photo_${mark._id}${
+        path.parse(image.name).ext
+      }`;
+      let str1 = image.name.split("/").pop();
+      data.img = image.name;
+      image.mv(`${process.env.CARMARK_FILE_UPLOAD_PATH}/${str1}`, (err) => {
+        if (err) {
+          throw new myError(
+            "Файл хуулах явцад алдаа гарлаа :" + err.message,
+            400
+          );
+        }
+      });
+    }
+
+    item = await carMark.findByIdAndUpdate(mark._id, data, {
+      new: true,
+      runValidators: true,
+    });
     res.status(200).json({
       success: true,
-      data: mark,
+      data: item,
     });
   }),
   show_carMark: asyncHandler(async (req, res, next) => {

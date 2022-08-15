@@ -5,6 +5,7 @@ const empty = require("is-empty");
 const md5 = require("md5");
 const asyncHandler = require("../../middleware/asyncHandler");
 const User = require("../../models/users");
+const Admin = require("../../models/admin");
 function auth(req, res, next) {
   const header = req.headers["authorization"];
   const token = header && header.split(" ")[1];
@@ -37,27 +38,53 @@ module.exports = {
   },
 
   createAccount: asyncHandler(async (req, res) => {
-    let { phone } = req.body;
-    const phoneExists = await User.findOne({ phone });
-    if (phoneExists) {
+    if (req.body.username && req.body.password) {
+      let admin = req.body;
+      console.log(admin);
+      console.log("Username", admin.username);
+      admin.password = md5(admin.password);
+      let item = await new Admin({
+        ...admin,
+      }).save();
+      const accessToken = jwt.sign(
+        {
+          username: req.body.username,
+        },
+        process.env.SECRET,
+        process.env.EXRPIRE
+      );
+
+      console.log(`Creating account for ${req.body.username}`);
+
+      return res.json({
+        success: 1,
+        username: req.body.username,
+        user_id: item._id,
+        accessToken: accessToken,
+      });
+    } else {
+      let { phone } = req.body;
+      const phoneExists = await User.findOne({ phone });
+      if (phoneExists) {
+        return res.status(200).json({
+          success: 0,
+          message: "Already exists!",
+        });
+      }
+
+      const item = await new User(req.body).save();
+
+      console.log(`Creating account for ${req.body.phone}`);
+      const otp = generateOTP(6);
+
+      item.phoneOtp = otp;
+      await item.save();
       return res.status(200).json({
-        success: 0,
-        message: "Already exists!",
+        success: 1,
+        username: req.body.phone,
+        user_id: item._id,
       });
     }
-
-    const item = await new User(req.body).save();
-
-    console.log(`Creating account for ${req.body.phone}`);
-    const otp = generateOTP(6);
-
-    item.phoneOtp = otp;
-    await item.save();
-    return res.status(200).json({
-      success: 1,
-      username: req.body.phone,
-      user_id: item._id,
-    });
 
     // await fast2sms({
     //   message: `ТМА Баталгаажуулах код :  ${otp}`,
@@ -73,34 +100,62 @@ module.exports = {
     // );
   }),
   login: asyncHandler(async (req, res) => {
-    const { phone } = req.body;
-    const user = await User.findOne({ phone }).lean();
+    if (req.body.username && req.body.password) {
+      let { username, password } = req.body;
+      if (empty(username) || empty(password))
+        throw new Error(
+          "Хэрэглэгчийн нэр эсвэл утасны дугаараа оруулна уу.!!!"
+        );
+      password = md5(password);
+      let item = await Admin.findOne({ username, password }).lean();
+      if (!item)
+        return res.json({
+          success: false,
+          message: "Хэрэглэгчийн нэр эсвэл нууц үг буруу байна",
+        });
+      const accessToken = jwt.sign(
+        {
+          user_id: item._id,
+        },
+        process.env.SECRET,
+        process.env.EXRPIRE
+      );
+      return res.json({
+        success: true,
+        user_id: item._id,
+        username: req.body.username,
+        accessToken: accessToken,
+      });
+    } else {
+      const { phone } = req.body;
+      const user = await User.findOne({ phone }).lean();
 
-    if (!user) {
-      throw new Error("Мэдээлэл олдсонгүй !");
+      if (!user) {
+        throw new Error("Мэдээлэл олдсонгүй !");
+      }
+
+      // generate otp
+      const otp = generateOTP(6);
+      // save otp to user collection
+      const newOtp = await User.findOneAndUpdate(
+        { phone },
+        { phoneOtp: otp, isAccountVerified: true }
+      );
+      res.status(200).json({
+        success: true,
+        message: "Баталгаажуулах код бүртгэлтэй дугаарлуу илгээгдлээ",
+        data: {
+          userId: user._id,
+          otp: otp,
+        },
+      });
+
+      // send otp to phone number
+      // await fast2sms({
+      //   message: `Your OTP is ${otp}`,
+      //   contactNumber: user.phone,
+      // });
     }
-
-    // generate otp
-    const otp = generateOTP(6);
-    // save otp to user collection
-    const newOtp = await User.findOneAndUpdate(
-      { phone },
-      { phoneOtp: otp, isAccountVerified: true }
-    );
-    res.status(200).json({
-      success: true,
-      message: "Баталгаажуулах код бүртгэлтэй дугаарлуу илгээгдлээ",
-      data: {
-        userId: user._id,
-        otp: otp,
-      },
-    });
-
-    // send otp to phone number
-    // await fast2sms({
-    //   message: `Your OTP is ${otp}`,
-    //   contactNumber: user.phone,
-    // });
   }),
 
   verifyPhoneOtp: asyncHandler(async (req, res) => {

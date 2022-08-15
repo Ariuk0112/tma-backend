@@ -15,4 +15,10 @@ const carType = new mongoose.Schema(
   },
   { toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
+
+carType.pre("remove", async function (next) {
+  await this.model("carMark").deleteMany({ carType: this._id });
+  next();
+});
+
 module.exports = mongoose.model("carType", carType);
