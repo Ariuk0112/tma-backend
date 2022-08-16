@@ -78,6 +78,9 @@ module.exports = {
             userId: 1,
             firstName: 1,
             lastName: 1,
+            email: 1,
+            phone: 1,
+            passportExpireDate: 1,
           },
         });
       } else if (req.params.factoryId) {
@@ -90,9 +93,27 @@ module.exports = {
             userId: 1,
             firstName: 1,
             lastName: 1,
+            email: 1,
+            phone: 1,
+            passportExpireDate: 1,
           },
         });
       }
+    } else if (req.query.isDriver) {
+      query = Cars.find({ carDriver: req.query.isDriver }).populate({
+        path: "userId carFactory carType carMark",
+        select: {
+          carType: 1,
+          factory: 1,
+          type: 1,
+          userId: 1,
+          firstName: 1,
+          lastName: 1,
+          email: 1,
+          phone: 1,
+          passportExpireDate: 1,
+        },
+      });
     } else {
       query = Cars.find().populate({
         path: "userId carFactory carType carMark",
@@ -103,6 +124,9 @@ module.exports = {
           userId: 1,
           firstName: 1,
           lastName: 1,
+          email: 1,
+          phone: 1,
+          passportExpireDate: 1,
         },
       });
     }
@@ -149,6 +173,24 @@ module.exports = {
         lastName: 1,
       },
     });
+    res.status(200).json({
+      success: true,
+      data: item,
+    });
+  }),
+  approve_car: asyncHandler(async (req, res, next) => {
+    let approve;
+    const item = await Cars.findById(req.params.id);
+    if (item) {
+      approve = await Cars.findByIdAndUpdate(
+        item._id,
+        { approved: req.body.approved },
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
+    }
     res.status(200).json({
       success: true,
       data: item,

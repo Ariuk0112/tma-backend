@@ -17,6 +17,7 @@ const userSchema = new mongoose.Schema(
         img: {
           type: String,
         },
+        porder: String,
       },
     ],
     passportExpireDate: String,
@@ -25,6 +26,7 @@ const userSchema = new mongoose.Schema(
         img: {
           type: String,
         },
+        dlorder: String,
       },
     ],
     driverLicenseExpireDate: String,

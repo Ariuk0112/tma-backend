@@ -29,7 +29,7 @@ module.exports = {
       files[i].name = `/tma/uploads/users/passport/photo_${item._id}_${i}${
         path.parse(files[i].name).ext
       }`;
-      data.passportImg.push({ img: files[i].name });
+      data.passportImg.push({ img: files[i].name, porder: req.body.porder });
       let str = files[i].name.split("/").pop();
       files[i].mv(
         `${process.env.USER_PASSPORT_IMG_UPLOAD_PATH}/${str}`,
@@ -48,7 +48,10 @@ module.exports = {
       license[i].name = `/tma/uploads/users/driverLicense/photo_${
         item._id
       }_${i}${path.parse(license[i].name).ext}`;
-      data.driverLicenseImg.push({ img: license[i].name });
+      data.driverLicenseImg.push({
+        img: license[i].name,
+        dlorder: req.body.dlorder,
+      });
       let str1 = license[i].name.split("/").pop();
       license[i].mv(
         `${process.env.USER_DRIVER_LICENSE_IMG_UPLOAD_PATH}/${str1}`,
