@@ -100,7 +100,11 @@ module.exports = {
         });
       }
     } else if (req.query.isDriver) {
-      query = Cars.find({ carDriver: req.query.isDriver }).populate({
+      let driver = req.query.isDriver;
+      console.log(driver);
+      query = Cars.find({
+        carDriver: { $exists: driver },
+      }).populate({
         path: "userId carFactory carType carMark",
         select: {
           carType: 1,
