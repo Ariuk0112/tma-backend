@@ -64,11 +64,13 @@ module.exports = {
   }),
   show_cars: asyncHandler(async (req, res, next) => {
     let query;
+    const driver = req.query.isDriver || false;
     if (req.params.factoryId) {
       if (req.params.factoryId && req.params.typeId) {
         query = Cars.find({
           carFactory: req.params.factoryId,
           carType: req.params.typeId,
+          carDriver: { $exists: driver },
         }).populate({
           path: "userId carFactory carType carMark",
           select: {
@@ -84,7 +86,11 @@ module.exports = {
           },
         });
       } else if (req.params.factoryId) {
-        query = Cars.find({ carFactory: req.params.factoryId }).populate({
+        let driver = req.query.isDriver;
+        query = Cars.find({
+          carFactory: req.params.factoryId,
+          carDriver: { $exists: driver },
+        }).populate({
           path: "userId carFactory carType carMark",
           select: {
             carType: 1,
@@ -99,27 +105,8 @@ module.exports = {
           },
         });
       }
-    } else if (req.query.isDriver) {
-      let driver = req.query.isDriver;
-      console.log(driver);
-      query = Cars.find({
-        carDriver: { $exists: driver },
-      }).populate({
-        path: "userId carFactory carType carMark",
-        select: {
-          carType: 1,
-          factory: 1,
-          type: 1,
-          userId: 1,
-          firstName: 1,
-          lastName: 1,
-          email: 1,
-          phone: 1,
-          passportExpireDate: 1,
-        },
-      });
     } else {
-      query = Cars.find().populate({
+      query = Cars.find({ carDriver: { $exists: driver } }).populate({
         path: "userId carFactory carType carMark",
         select: {
           carType: 1,
@@ -140,7 +127,7 @@ module.exports = {
     const limit = parseInt(req.query.limit) || 10;
     const sort = req.query.sort;
 
-    ["sort", "page", "limit"].forEach((el) => delete req.query[el]);
+    ["sort", "page", "limit", "isDriver"].forEach((el) => delete req.query[el]);
 
     const pageCount = Math.ceil(total / limit);
     const start = (page - 1) * limit + 1;
@@ -184,20 +171,23 @@ module.exports = {
   }),
   approve_car: asyncHandler(async (req, res, next) => {
     let approve;
+    const aa = req.query.approved;
     const item = await Cars.findById(req.params.id);
-    if (item) {
-      approve = await Cars.findByIdAndUpdate(
-        item._id,
-        { approved: req.body.approved },
-        {
-          new: true,
-          runValidators: true,
-        }
-      );
+    if (!item) {
+      throw new myError(`${req.params.id} тай машин байхгүй байна`, 400);
     }
+    approve = await Cars.findByIdAndUpdate(
+      item._id,
+      { $set: { approved: aa } },
+      {
+        new: true,
+        runValidators: true,
+        upsert: true,
+      }
+    );
     res.status(200).json({
       success: true,
-      data: item,
+      data: approve,
     });
   }),
   update_car: asyncHandler(async (req, res, next) => {

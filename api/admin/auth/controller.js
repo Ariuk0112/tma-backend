@@ -1,6 +1,10 @@
-const db = require("../../db");
 const jwt = require("jsonwebtoken");
+const empty = require("is-empty");
+const md5 = require("md5");
 const asyncHandler = require("../../../middleware/asyncHandler");
+const User = require("../../../models/users");
+const Admin = require("../../../models/admin");
+
 function auth(req, res, next) {
   const header = req.headers["authorization"];
   // console.log(req.headers)
@@ -12,13 +16,13 @@ function auth(req, res, next) {
       message: "token is null",
     });
 
-  jwt.verify(token, process.env.SECRET, (err, data) => {
+  jwt.verify(token, process.env.ACCESS_TOKEN_ADMIN, (err, data) => {
     if (err)
       return res.status(401).json({
         success: 0,
         message: err.message,
       });
-
+    console.log("admin");
     req.data = data;
     next();
   });

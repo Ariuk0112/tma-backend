@@ -27,7 +27,7 @@ const car = new mongoose.Schema(
     drivetrain: String,
     fuelConsumption: String,
     location: String,
-    carStatus: { type: String, default: 0 },
+    carStatus: { type: Number, default: 0 },
     createDate: { type: Date, default: Date.now() },
     avalaibleStartDate: Date,
     avalaibleEndDate: Date,

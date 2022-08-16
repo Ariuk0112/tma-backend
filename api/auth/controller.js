@@ -17,14 +17,22 @@ function auth(req, res, next) {
     });
 
   jwt.verify(token, process.env.SECRET, (err, data) => {
-    if (err)
-      return res.status(401).json({
-        success: 0,
-        message: err.message,
+    if (err) {
+      jwt.verify(token, process.env.ACCESS_TOKEN_ADMIN, (err, data) => {
+        if (err)
+          return res.status(401).json({
+            success: 0,
+            message: err.message,
+          });
+        console.log("admin");
+        req.data = data;
+        next();
       });
-
-    req.data = data;
-    next();
+    } else {
+      console.log("user");
+      req.data = data;
+      next();
+    }
   });
 }
 
@@ -115,17 +123,18 @@ module.exports = {
         });
       const accessToken = jwt.sign(
         {
-          user_id: item._id,
+          ad_id: item._id,
         },
-        process.env.SECRET,
-        process.env.EXRPIRE
+        process.env.ACCESS_TOKEN_ADMIN,
+        { expiresIn: "300m" }
       );
+
       return res.json({
         success: true,
         user_id: item._id,
         username: req.body.username,
         accessToken: accessToken,
-        role: toor,
+        role: "toor",
       });
     } else {
       const { phone } = req.body;
