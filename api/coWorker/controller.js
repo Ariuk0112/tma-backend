@@ -1,4 +1,4 @@
-const CoWorker = require("../../models/CoWorker");
+const CoWorker = require("../../models/coWorker");
 const asyncHandler = require("../../middleware/asyncHandler");
 const myError = require("../../utils/myError");
 const path = require("path");

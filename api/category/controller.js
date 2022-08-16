@@ -31,8 +31,8 @@ module.exports = {
 
   create_carMark: asyncHandler(async (req, res, next) => {
     const mark = await carMark.create(req.body);
-    let data;
-    if (req.files.img) {
+    let data = {};
+    if (req.files) {
       const image = req.files.img;
       image.name = `/tma/uploads/carMark/photo_${mark._id}${
         path.parse(image.name).ext

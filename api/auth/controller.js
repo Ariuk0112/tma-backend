@@ -125,6 +125,7 @@ module.exports = {
         user_id: item._id,
         username: req.body.username,
         accessToken: accessToken,
+        role: toor,
       });
     } else {
       const { phone } = req.body;
@@ -182,6 +183,7 @@ module.exports = {
       data: {
         accessToken,
         userId: user._id,
+        role: user.role,
       },
     });
     user.phoneOtp = "";

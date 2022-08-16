@@ -14,6 +14,7 @@ const carMark = new mongoose.Schema(
       type: mongoose.Schema.ObjectId,
       ref: "carFactory",
     },
+    carYear: String,
     img: String,
   },
   { toJSON: { virtuals: true }, toObject: { virtuals: true } }

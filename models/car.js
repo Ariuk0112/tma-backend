@@ -36,7 +36,10 @@ const car = new mongoose.Schema(
     driverAge: String,
     driverGender: String,
     drivingExperience: String,
-
+    carDriver: {
+      type: Boolean,
+      default: false,
+    },
     carFactory: {
       type: mongoose.Schema.ObjectId,
       ref: "carFactory",
