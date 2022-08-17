@@ -1,9 +1,10 @@
 const mongoose = require("mongoose");
 const { transliterate, slugify } = require("transliteration");
+const autoIncrement = require("mongoose-auto-increment");
 const order = new mongoose.Schema(
   {
     orderId: {
-      type: String,
+      type: Number,
       required: true,
       unique: true,
     },
@@ -17,34 +18,24 @@ const order = new mongoose.Schema(
     },
     status: String,
     createDate: { type: Date, default: Date.now() },
-    orderStartDate: Date,
-    orderEndDate: Date,
+    orderStartDate: String,
+    orderEndDate: String,
     location: String,
     totalPayment: String,
     prePayment: String,
-    prePaymentDate: Date,
+    prePaymentDate: String,
     balancePayment: String,
-    balancePaymentDate: Date,
+    balancePaymentDate: String,
   },
   { toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
-var CounterSchema = Schema({
-  _id: { type: String, required: true },
-  seq: { type: Number, default: 0 },
-});
-var counter = mongoose.model("counter", CounterSchema);
-
-order.pre("save", function (next) {
-  var doc = this;
-  counter.findByIdAndUpdate(
-    { _id: "entityId" },
-    { $inc: { seq: 1 } },
-    function (error, counter) {
-      if (error) return next(error);
-      doc.orderId = counter.seq;
-      next();
-    }
-  );
+var db = mongoose.connection;
+autoIncrement.initialize(db);
+order.plugin(autoIncrement.plugin, {
+  model: "order",
+  field: "orderId",
+  startAt: 1000,
+  incrementBy: 1,
 });
 
 module.exports = mongoose.model("order", order);

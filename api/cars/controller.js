@@ -64,13 +64,13 @@ module.exports = {
   }),
   show_cars: asyncHandler(async (req, res, next) => {
     let query;
-    const driver = req.query.isDriver || false;
+    const driver = req.query.isDriver || 0;
     if (req.params.factoryId) {
       if (req.params.factoryId && req.params.typeId) {
         query = Cars.find({
           carFactory: req.params.factoryId,
           carType: req.params.typeId,
-          carDriver: { $exists: driver },
+          carDriver: driver,
         }).populate({
           path: "userId carFactory carType carMark",
           select: {
@@ -89,7 +89,7 @@ module.exports = {
         let driver = req.query.isDriver;
         query = Cars.find({
           carFactory: req.params.factoryId,
-          carDriver: { $exists: driver },
+          carDriver: driver,
         }).populate({
           path: "userId carFactory carType carMark",
           select: {
@@ -106,7 +106,7 @@ module.exports = {
         });
       }
     } else {
-      query = Cars.find({ carDriver: { $exists: driver } }).populate({
+      query = Cars.find({ carDriver: driver }).populate({
         path: "userId carFactory carType carMark",
         select: {
           carType: 1,

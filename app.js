@@ -54,6 +54,7 @@ const issue2options = {
 // --------------------------------------------------------------------------------------
 // app config
 connectDB();
+
 app.use(cors(issue2options));
 app.use(logger("dev"));
 app.use(express.json());
@@ -70,6 +71,8 @@ app.use("/api/tma/category", require("./api/category/router"));
 app.use("/api/tma/userDetail", require("./api/user/router"));
 app.use("/api/tma/cars", require("./api/cars/router"));
 app.use("/api/tma/auction", require("./api/auction/router"));
+app.use("/api/tma/price", require("./api/price/router"));
+app.use("/api/tma/order", require("./api/order/router"));
 
 // ADMIN routes
 app.use("/api/adm/auth", require("./api/admin/auth/router"));

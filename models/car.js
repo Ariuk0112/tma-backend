@@ -29,16 +29,16 @@ const car = new mongoose.Schema(
     location: String,
     carStatus: { type: Number, default: 0 },
     createDate: { type: Date, default: Date.now() },
-    avalaibleStartDate: Date,
-    avalaibleEndDate: Date,
+    avalaibleStartDate: String,
+    avalaibleEndDate: String,
 
     driverName: String,
     driverAge: String,
     driverGender: String,
     drivingExperience: String,
     carDriver: {
-      type: Boolean,
-      default: false,
+      type: String,
+      default: "0",
     },
     carFactory: {
       type: mongoose.Schema.ObjectId,
@@ -62,7 +62,7 @@ const car = new mongoose.Schema(
         },
       },
     ],
-
+    certificateId: String,
     certificateImg: {
       type: String,
     },
