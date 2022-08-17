@@ -74,6 +74,9 @@ module.exports = {
         }).populate({
           path: "userId carFactory carType carMark",
           select: {
+            passportImg: 1,
+            passportExpireDate: 1,
+            driverLicenseImg: 1,
             carType: 1,
             factory: 1,
             carMark: 1,
@@ -94,6 +97,9 @@ module.exports = {
         }).populate({
           path: "userId carFactory carType carMark",
           select: {
+            passportImg: 1,
+            passportExpireDate: 1,
+            driverLicenseImg: 1,
             carType: 1,
             factory: 1,
             carMark: 1,
@@ -111,6 +117,9 @@ module.exports = {
       query = Cars.find({ carDriver: driver }).populate({
         path: "userId carFactory carType carMark",
         select: {
+          passportImg: 1,
+          passportExpireDate: 1,
+          driverLicenseImg: 1,
           carType: 1,
           factory: 1,
           carMark: 1,
