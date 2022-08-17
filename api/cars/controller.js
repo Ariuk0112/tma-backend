@@ -76,6 +76,7 @@ module.exports = {
           select: {
             carType: 1,
             factory: 1,
+            carMark: 1,
             type: 1,
             userId: 1,
             firstName: 1,
@@ -95,6 +96,7 @@ module.exports = {
           select: {
             carType: 1,
             factory: 1,
+            carMark: 1,
             type: 1,
             userId: 1,
             firstName: 1,
@@ -111,6 +113,7 @@ module.exports = {
         select: {
           carType: 1,
           factory: 1,
+          carMark: 1,
           type: 1,
           userId: 1,
           firstName: 1,
