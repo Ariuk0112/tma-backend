@@ -16,14 +16,17 @@ const order = new mongoose.Schema(
       type: mongoose.Schema.ObjectId,
       ref: "car",
     },
-    status: String,
+    status: {
+      type: String,
+      default: "0",
+    },
     createDate: { type: Date, default: Date.now() },
     orderStartDate: String,
     orderEndDate: String,
     location: String,
     totalPayment: String,
     prePayment: String,
-    prePaymentDate: String,
+    prePaymentDate: Date,
     balancePayment: String,
     balancePaymentDate: String,
   },
@@ -37,5 +40,8 @@ order.plugin(autoIncrement.plugin, {
   startAt: 1000,
   incrementBy: 1,
 });
-
+order.pre("save", function (next) {
+  this.prePaymentDate = Date.now();
+  next();
+});
 module.exports = mongoose.model("order", order);

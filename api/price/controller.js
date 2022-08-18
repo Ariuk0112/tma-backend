@@ -4,7 +4,8 @@ const path = require("path");
 const fs = require("fs");
 const isEmpty = require("is-empty");
 const Price = require("../../models/price");
-const carMark = require("../../models/carMark");
+const Cars = require("../../models/car");
+const DateDiff = require("date-diff");
 module.exports = {
   show_car_price: asyncHandler(async (req, res, next) => {
     const price = await Price.find();
@@ -49,11 +50,61 @@ module.exports = {
       data: type,
     });
   }),
-  delete_car_price: asyncHandler(async (req, res, next) => {
-    const type = await Price.findByIdAndDelete(req.params.id);
+  get_price_with_car_id: asyncHandler(async (req, res, next) => {
+    const car = await Cars.findById(req.params.id);
+    const price = await Cars.aggregate([
+      {
+        $match: {
+          _id: car._id,
+        },
+      },
+      {
+        $lookup: {
+          from: "prices",
+          let: {
+            car_manufactured: "$manufactured",
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $in: ["$$car_manufactured", "$manufactured"],
+                },
+              },
+            },
+          ],
+          as: "results",
+        },
+      },
+      {
+        $replaceRoot: {
+          newRoot: {
+            $mergeObjects: [
+              {
+                $arrayElemAt: ["$results", 0],
+              },
+              "$$ROOT",
+            ],
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          rentalPricePerDayWithDriver: 1,
+          rentalPricePerDayWithDriverExtraTime: 1,
+          rentalPricePerDay: 1,
+          rentalPricePerDayExtraTime: 1,
+          rentalPricePerHourWithDriver: 1,
+          rentalPricePerHour: 1,
+        },
+      },
+    ]);
     res.status(200).json({
       success: true,
-      data: type,
+      data: price[0],
     });
   }),
+
+  
 };

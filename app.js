@@ -72,11 +72,9 @@ app.use("/api/tma/userDetail", require("./api/user/router"));
 app.use("/api/tma/cars", require("./api/cars/router"));
 app.use("/api/tma/auction", require("./api/auction/router"));
 app.use("/api/tma/price", require("./api/price/router"));
-app.use("/api/tma/order", require("./api/order/router"));
+app.use("/api/tma/order", require("./api/orders/router"));
 
 // ADMIN routes
-app.use("/api/adm/auth", require("./api/admin/auth/router"));
-app.use("/api/adm/order", authAdmin, require("./api/admin/order/router"));
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

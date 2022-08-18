@@ -6,6 +6,7 @@ const fs = require("fs");
 const isEmpty = require("is-empty");
 const isempty = require("isempty");
 const { query } = require("express");
+const price = require("../../models/price");
 module.exports = {
   create_car: asyncHandler(async (req, res, next) => {
     let car;
@@ -39,6 +40,7 @@ module.exports = {
         image.name = `/tma/uploads/cars/certificate_${car._id}${
           path.parse(image.name).ext
         }`;
+        let prices = {};
         let str1 = image.name.split("/").pop();
         data.certificateImg = image.name;
         image.mv(`${process.env.CARS_FILE_UPLOAD_PATH}/${str1}`, (err) => {
@@ -50,7 +52,76 @@ module.exports = {
           }
         });
       }
-
+      const price = await Cars.aggregate([
+        {
+          $match: {
+            _id: car._id,
+          },
+        },
+        {
+          $lookup: {
+            from: "prices",
+            let: {
+              car_manufactured: "$manufactured",
+            },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $in: ["$$car_manufactured", "$manufactured"],
+                  },
+                },
+              },
+            ],
+            as: "results",
+          },
+        },
+        {
+          $replaceRoot: {
+            newRoot: {
+              $mergeObjects: [
+                {
+                  $arrayElemAt: ["$results", 0],
+                },
+                "$$ROOT",
+              ],
+            },
+          },
+        },
+        {
+          $project: {
+            rentalPricePerDayWithDriver: 1,
+            rentalPricePerDayWithDriverExtraTime: 1,
+            rentalPricePerDay: 1,
+            rentalPricePerDayExtraTime: 1,
+            rentalPricePerHourWithDriver: 1,
+            rentalPricePerHour: 1,
+            totalDays: {
+              $dateDiff: {
+                startDate: "$avalaibleStartDate",
+                endDate: "$avalaibleEndDate",
+                unit: "day",
+              },
+            },
+            totalHour: {
+              $dateDiff: {
+                startDate: "$avalaibleStartDate",
+                endDate: "$avalaibleEndDate",
+                unit: "hour",
+              },
+            },
+          },
+        },
+      ]);
+      data.totalRentalPriceDayWithDriver =
+        parseInt(price[0].rentalPricePerDayWithDriver) * price[0].totalDays;
+      data.totalRentalPricePerDay =
+        parseInt(price[0].rentalPricePerDay) * price[0].totalDays;
+      data.totalRentalPricePerHourWithDriver =
+        parseInt(price[0].rentalPricePerHourWithDriver) * price[0].totalHour;
+      data.totalRentalPricePerHour =
+        parseInt(price[0].rentalPricePerHour) * price[0].totalHour;
+      prices = price[0];
       car = await Cars.findByIdAndUpdate(car._id, data, {
         new: true,
         runValidators: true,
@@ -92,7 +163,6 @@ module.exports = {
       } else if (req.params.factoryId) {
         let driver = req.query.isDriver;
         query = Cars.find({
-          carFactory: req.params.factoryId,
           carDriver: driver,
         }).populate({
           path: "userId carFactory carType carMark",

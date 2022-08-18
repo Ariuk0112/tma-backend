@@ -8,12 +8,12 @@ const price = new mongoose.Schema(
       ref: "carMark",
     },
     manufactured: [String],
-    rentalPricePerDayWithDriver: String,
-    rentalPricePerDayWithDriverExtraTime: String,
-    rentalPricePerDay: String,
-    rentalPricePerDayExtraTime: String,
-    rentalPricePerHourWithDriver: String,
-    rentalPricePerHour: String,
+    totalRentalPriceDayWithDriver: String,
+    totalRentalPriceDayWithDriverExtraTime: String,
+    totalRentalPriceDay: String,
+    totalRentalPriceDayExtraTime: String,
+    totalRentalPriceHourWithDriver: String,
+    totalRentalPriceHour: String,
   },
   { toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
