@@ -137,12 +137,14 @@ module.exports = {
   show_cars: asyncHandler(async (req, res, next) => {
     let query;
     const driver = req.query.isDriver || 0;
+    const carStatus = req.query.carStatus || 0;
     if (req.params.factoryId) {
       if (req.params.factoryId && req.params.typeId) {
         query = Cars.find({
           carFactory: req.params.factoryId,
           carType: req.params.typeId,
           carDriver: driver,
+          carStatus: carStatus,
         }).populate({
           path: "userId carFactory carType carMark",
           select: {
@@ -165,6 +167,7 @@ module.exports = {
         let driver = req.query.isDriver;
         query = Cars.find({
           carDriver: driver,
+          carStatus: carStatus,
         }).populate({
           path: "userId carFactory carType carMark",
           select: {
@@ -185,7 +188,7 @@ module.exports = {
         });
       }
     } else {
-      query = Cars.find({ carDriver: driver }).populate({
+      query = Cars.find({ carDriver: driver, carStatus: carStatus }).populate({
         path: "userId carFactory carType carMark",
         select: {
           passportImg: 1,
@@ -261,7 +264,7 @@ module.exports = {
     }
     approve = await Cars.findByIdAndUpdate(
       item._id,
-      { $set: { approved: aa } },
+      { $set: { carStatus: aa } },
       {
         new: true,
         runValidators: true,

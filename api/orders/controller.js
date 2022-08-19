@@ -125,11 +125,9 @@ module.exports = {
   }),
 
   show_orders: asyncHandler(async (req, res, next) => {
-    let { isDriver } = req.body;
-    let query;
-    const driver = req.query.isDriver || 0;
-
-    query = Car1.aggregate([
+    const driver = req.query.isDriver || "0";
+    const status = req.query.status || "0";
+    const cars1 = await Orders.aggregate([
       {
         $lookup: {
           from: "cars",
@@ -157,16 +155,19 @@ module.exports = {
       },
       {
         $match: {
-          carDriver: isDriver,
+          carDriver: driver,
+          status: status,
+        },
+      },
+      {
+        $sort: {
+          createDate: -1,
         },
       },
     ]);
-
-    let total = await query;
-    total = total.length;
+    let total = cars1.length;
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
-    const sort = req.query.sort;
 
     ["sort", "page", "limit", "isDriver"].forEach((el) => delete req.query[el]);
 
@@ -174,17 +175,57 @@ module.exports = {
     const start = (page - 1) * limit + 1;
     let end = start + limit - 1;
     if (end > total) end = total;
+    let skip = start - 1;
 
     const pagination = { total, pageCount, start, end };
 
     if (page < pageCount) pagination.nextPage = page + 1;
     if (page > 1) pagination.prevPage = page - 1;
 
-    const cars = await query
-      .clone()
-      .sort(sort)
-      .skip(start - 1)
-      .limit(limit);
+    const cars = await Orders.aggregate([
+      {
+        $lookup: {
+          from: "cars",
+          localField: "carId",
+          foreignField: "_id",
+          as: "result",
+        },
+      },
+      {
+        $replaceRoot: {
+          newRoot: {
+            $mergeObjects: [
+              {
+                $arrayElemAt: ["$result", 0],
+              },
+              "$$ROOT",
+            ],
+          },
+        },
+      },
+      {
+        $project: {
+          result: 0,
+        },
+      },
+      {
+        $match: {
+          carDriver: driver,
+          status: status,
+        },
+      },
+      {
+        $sort: {
+          createDate: -1,
+        },
+      },
+      {
+        $skip: start - 1,
+      },
+      {
+        $limit: limit,
+      },
+    ]);
 
     res.status(200).json({
       success: true,
