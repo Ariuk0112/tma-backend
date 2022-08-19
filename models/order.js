@@ -11,6 +11,7 @@ const order = new mongoose.Schema(
     userId: {
       type: mongoose.Schema.ObjectId,
       ref: "users",
+      required: true,
     },
     carId: {
       type: mongoose.Schema.ObjectId,
@@ -20,15 +21,15 @@ const order = new mongoose.Schema(
       type: String,
       default: "0",
     },
-    createDate: { type: Date, default: Date.now() },
-    orderStartDate: String,
-    orderEndDate: String,
+    createDate: { type: Date },
+    orderStartDate: Date,
+    orderEndDate: Date,
     location: String,
     totalPayment: String,
     prePayment: String,
     prePaymentDate: Date,
     balancePayment: String,
-    balancePaymentDate: String,
+    balancePaymentDate: Date,
   },
   { toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
@@ -41,7 +42,9 @@ order.plugin(autoIncrement.plugin, {
   incrementBy: 1,
 });
 order.pre("save", function (next) {
-  this.prePaymentDate = Date.now();
+  var date = Date.now();
+  this.prePaymentDate = new Date(date);
+  this.createDate = new Date(date);
   next();
 });
 module.exports = mongoose.model("order", order);

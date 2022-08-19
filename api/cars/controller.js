@@ -113,6 +113,7 @@ module.exports = {
           },
         },
       ]);
+      data.totalRentalDay = price[0].totalDays;
       data.totalRentalPriceDayWithDriver =
         parseInt(price[0].rentalPricePerDayWithDriver) * price[0].totalDays;
       data.totalRentalPricePerDay =

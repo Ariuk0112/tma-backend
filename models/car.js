@@ -19,6 +19,7 @@ const car = new mongoose.Schema(
     desc: String,
     insurance: String,
     totalRentalPriceDayWithDriver: String,
+    totalRentalDay: String,
     totalRentalPricePerDay: String,
     totalRentalPricePerHourWithDriver: String,
     totalRentalPricePerHour: String,

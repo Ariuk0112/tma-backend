@@ -7,7 +7,18 @@ const isEmpty = require("is-empty");
 module.exports = {
   create_user_details: asyncHandler(async (req, res, next) => {
     const files = [].concat(req.files.passportImg);
-    let { phone, firstName, lastName, email } = req.body;
+    let {
+      phone,
+      firstName,
+      lastName,
+      email,
+      address,
+      role,
+      passportExpireDate,
+      driverLicenseExpireDate,
+      driverLicenseNumber,
+      ContractNumber,
+    } = req.body;
     const license = [].concat(req.files.driverLicenseImg);
     let item = await Users.findOne({ phone });
     if (!item) {
@@ -22,6 +33,12 @@ module.exports = {
       firstName,
       lastName,
       email,
+      address,
+      role,
+      passportExpireDate,
+      driverLicenseExpireDate,
+      driverLicenseNumber,
+      ContractNumber,
     };
 
     //handling passport images
