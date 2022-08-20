@@ -1,6 +1,7 @@
 const asyncHandler = require("../../middleware/asyncHandler");
 const myError = require("../../utils/myError");
 const Car1 = require("../../models/car");
+const carMark = require("../../models/carMark");
 const path = require("path");
 const fs = require("fs");
 const isEmpty = require("is-empty");
@@ -129,6 +130,11 @@ module.exports = {
     const status = req.query.status || "0";
     const cars1 = await Orders.aggregate([
       {
+        $match: {
+          status: status,
+        },
+      },
+      {
         $lookup: {
           from: "cars",
           localField: "carId",
@@ -149,14 +155,68 @@ module.exports = {
         },
       },
       {
+        $unwind: {
+          path: "$result",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "results",
+        },
+      },
+      {
+        $replaceRoot: {
+          newRoot: {
+            $mergeObjects: [
+              {
+                $arrayElemAt: ["$results", 0],
+              },
+              "$$ROOT",
+            ],
+          },
+        },
+      },
+      {
+        $unwind: {
+          path: "$results",
+        },
+      },
+      {
         $project: {
+          results: 0,
           result: 0,
+        },
+      },
+      {
+        $lookup: {
+          from: "carmarks",
+          localField: "carMark",
+          foreignField: "_id",
+          as: "carMark",
+        },
+      },
+      {
+        $lookup: {
+          from: "carfactories",
+          localField: "carFactory",
+          foreignField: "_id",
+          as: "carFactory",
+        },
+      },
+      {
+        $lookup: {
+          from: "cartypes",
+          localField: "carType",
+          foreignField: "_id",
+          as: "carType",
         },
       },
       {
         $match: {
           carDriver: driver,
-          status: status,
         },
       },
       {
@@ -184,6 +244,11 @@ module.exports = {
 
     const cars = await Orders.aggregate([
       {
+        $match: {
+          status: status,
+        },
+      },
+      {
         $lookup: {
           from: "cars",
           localField: "carId",
@@ -204,14 +269,73 @@ module.exports = {
         },
       },
       {
+        $unwind: {
+          path: "$result",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "results",
+        },
+      },
+      {
+        $replaceRoot: {
+          newRoot: {
+            $mergeObjects: [
+              {
+                $arrayElemAt: ["$results", 0],
+              },
+              "$$ROOT",
+            ],
+          },
+        },
+      },
+      {
+        $unwind: {
+          path: "$results",
+        },
+      },
+      {
         $project: {
+          results: 0,
           result: 0,
+          phoneOtp: 0,
+          role: 0,
+          isAccountVerified: 0,
+          ContractNumber: 0,
+          __v: 0,
+        },
+      },
+      {
+        $lookup: {
+          from: "carmarks",
+          localField: "carMark",
+          foreignField: "_id",
+          as: "carMark",
+        },
+      },
+      {
+        $lookup: {
+          from: "carfactories",
+          localField: "carFactory",
+          foreignField: "_id",
+          as: "carFactory",
+        },
+      },
+      {
+        $lookup: {
+          from: "cartypes",
+          localField: "carType",
+          foreignField: "_id",
+          as: "carType",
         },
       },
       {
         $match: {
           carDriver: driver,
-          status: status,
         },
       },
       {
@@ -226,7 +350,6 @@ module.exports = {
         $limit: limit,
       },
     ]);
-
     res.status(200).json({
       success: true,
       count: cars.length,

@@ -18,8 +18,8 @@ const order = new mongoose.Schema(
       ref: "car",
     },
     status: {
-      type: String,
-      default: "0",
+      type: Number,
+      default: 0,
     },
     createDate: { type: Date },
     orderStartDate: Date,

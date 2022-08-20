@@ -138,6 +138,7 @@ module.exports = {
     let query;
     const driver = req.query.isDriver || 0;
     const carStatus = req.query.carStatus || 0;
+    const type = req.query.type || "1";
     if (req.params.factoryId) {
       if (req.params.factoryId && req.params.typeId) {
         query = Cars.find({
@@ -145,6 +146,7 @@ module.exports = {
           carType: req.params.typeId,
           carDriver: driver,
           carStatus: carStatus,
+          type: type,
         }).populate({
           path: "userId carFactory carType carMark",
           select: {
@@ -168,6 +170,7 @@ module.exports = {
         query = Cars.find({
           carDriver: driver,
           carStatus: carStatus,
+          type: type,
         }).populate({
           path: "userId carFactory carType carMark",
           select: {
@@ -188,7 +191,11 @@ module.exports = {
         });
       }
     } else {
-      query = Cars.find({ carDriver: driver, carStatus: carStatus }).populate({
+      query = Cars.find({
+        carDriver: driver,
+        carStatus: carStatus,
+        type: type,
+      }).populate({
         path: "userId carFactory carType carMark",
         select: {
           passportImg: 1,
