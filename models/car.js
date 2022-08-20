@@ -43,8 +43,8 @@ const car = new mongoose.Schema(
     driverGender: String,
     drivingExperience: String,
     carDriver: {
-      type: Number,
-      default: 0,
+      type: String,
+      default: "0",
     },
     carFactory: {
       type: mongoose.Schema.ObjectId,
