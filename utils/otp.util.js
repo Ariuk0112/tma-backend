@@ -1,5 +1,6 @@
 const fast2sms = require("fast-two-sms");
-
+const request = require("request");
+const querystring = require("querystring");
 exports.generateOTP = (otp_length) => {
   // Declare a digits variable
   // which stores all digits
@@ -11,15 +12,27 @@ exports.generateOTP = (otp_length) => {
   return OTP;
 };
 
-exports.fast2sms = async ({ message, contactNumber }, next) => {
-  try {
-    const res = await fast2sms.sendMessage({
-      authorization: FAST2SMS,
-      message,
-      numbers: [contactNumber],
-    });
-    console.log(res);
-  } catch (error) {
-    next(error);
-  }
+exports.message = (phone, otp) => {
+  console.log("duudjin");
+  const parameters = {
+    key: process.env.API_KEY,
+    from: 72220222,
+    to: phone,
+    text: `ТМА Баталгаажуулах код : ${otp}`,
+  };
+
+  const get_request_args = querystring.stringify(parameters);
+
+  const options = {
+    url: "https://api.messagepro.mn/send?" + get_request_args,
+    json: true,
+  };
+
+  request.get(options, (err, res, body) => {
+    if (err) {
+      return console.log(err);
+    }
+    console.log(`Status: ${res.statusCode}`);
+    console.log(body);
+  });
 };

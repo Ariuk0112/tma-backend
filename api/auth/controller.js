@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 const mail = require("../mail");
-const { generateOTP } = require("../../utils/otp.util");
+const { generateOTP, message } = require("../../utils/otp.util");
 const empty = require("is-empty");
 const md5 = require("md5");
 const asyncHandler = require("../../middleware/asyncHandler");
@@ -87,6 +87,10 @@ module.exports = {
 
       item.phoneOtp = otp;
       await item.save();
+      await sendMessage({
+        phone: item.phone,
+        otp: otp,
+      });
       return res.status(200).json({
         success: 1,
         username: req.body.phone,
@@ -104,7 +108,7 @@ module.exports = {
     //     username: req.body.username,
     //   },
     //   process.env.SECRET,
-    //   process.env.EXRPIRE
+    //   { expiresIn: "300m" }
     // );
   }),
   login: asyncHandler(async (req, res) => {
@@ -151,6 +155,8 @@ module.exports = {
         { phone },
         { phoneOtp: otp, isAccountVerified: true }
       );
+
+      message(user.phone, otp);
       res.status(200).json({
         success: true,
         message: "Баталгаажуулах код бүртгэлтэй дугаарлуу илгээгдлээ",
@@ -159,7 +165,6 @@ module.exports = {
           otp: otp,
         },
       });
-
       // send otp to phone number
       // await fast2sms({
       //   message: `Your OTP is ${otp}`,
@@ -183,7 +188,7 @@ module.exports = {
         userId: req.body.user_id,
       },
       process.env.SECRET,
-      process.env.EXRPIRE
+      { expiresIn: "120m" }
     );
 
     res.status(200).json({
