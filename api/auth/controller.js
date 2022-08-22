@@ -87,17 +87,14 @@ module.exports = {
 
       item.phoneOtp = otp;
       await item.save();
-      await sendMessage({
-        phone: item.phone,
-        otp: otp,
-      });
+
       return res.status(200).json({
         success: 1,
         username: req.body.phone,
         user_id: item._id,
       });
     }
-
+    message(user.phone, otp);
     // await fast2sms({
     //   message: `ТМА Баталгаажуулах код :  ${otp}`,
     //   contactNumber: item.phone,
