@@ -140,25 +140,26 @@ module.exports = {
     } else {
       const { phone } = req.body;
       const user = await User.findOne({ phone }).lean();
-
-      if (!user) {
-        throw new Error("Мэдээлэл олдсонгүй !");
-      }
-
+      let query;
+      let data = req.body;
       // generate otp
       const otp = generateOTP(6);
-      // save otp to user collection
-      const newOtp = await User.findOneAndUpdate(
-        { phone },
-        { phoneOtp: otp, isAccountVerified: true }
-      );
-
-      message(user.phone, otp);
+      data.phoneOtp = otp;
+      if (!user) {
+        query = new User(data).save();
+      } else {
+        query = User.findOneAndUpdate(
+          { phone },
+          { phoneOtp: otp, isAccountVerified: true }
+        );
+      }
+      const item = await query;
+      message(phone, otp);
       res.status(200).json({
         success: true,
         message: "Баталгаажуулах код бүртгэлтэй дугаарлуу илгээгдлээ",
         data: {
-          userId: user._id,
+          userId: item._id,
           otp: otp,
         },
       });

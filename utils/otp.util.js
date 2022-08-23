@@ -1,4 +1,3 @@
-const fast2sms = require("fast-two-sms");
 const request = require("request");
 const querystring = require("querystring");
 exports.generateOTP = (otp_length) => {
@@ -13,7 +12,6 @@ exports.generateOTP = (otp_length) => {
 };
 
 exports.message = (phone, otp) => {
-  console.log("duudjin");
   const parameters = {
     key: process.env.API_KEY,
     from: 72220222,
