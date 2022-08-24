@@ -65,7 +65,6 @@ module.exports = {
   }),
   show_auctions: asyncHandler(async (req, res, next) => {
     let query;
-
     query = Auction.find();
 
     let total = await query;
@@ -110,15 +109,15 @@ module.exports = {
     });
   }),
   update_car: asyncHandler(async (req, res, next) => {
-    let car;
-    const item = await Cars.findById(req.params.id);
+    let auction, query;
+    const item = await Auction.findById(req.params.id);
     let data = req.body;
     if (item) {
       if (req.files) {
-        if (req.files.image) {
-          const file = req.files.image;
-          str = req.body.image.split("/").pop();
-          fs.unlink(`${process.env.CARS_FILE_UPLOAD_PATH}/${str}`, (err) => {
+        if (req.files.headImg) {
+          const file = req.files.headImg;
+          str = req.body.headImg.split("/").pop();
+          fs.unlink(`${process.env.AUCTION_FILE_UPLOAD_PATH}/${str}`, (err) => {
             if (err) {
               throw new myError(
                 "Файл устгах явцад алдаа гарлаа :" + err.message,
@@ -127,7 +126,7 @@ module.exports = {
             }
           });
 
-          file.mv(`${process.env.CARS_FILE_UPLOAD_PATH}/${str}`, (err) => {
+          file.mv(`${process.env.AUCTION_FILE_UPLOAD_PATH}/${str}`, (err) => {
             if (err) {
               throw new myError(
                 "Файл хуулах явцад алдаа гарлаа :" + err.message,
@@ -136,50 +135,23 @@ module.exports = {
             }
           });
         }
-        if (req.files.driverLicenseImg) {
-          const file1 = req.files.driverLicenseImg;
-          str = req.body.driverLicenseImg.split("/").pop();
-          fs.unlink(
-            `${process.env.USER_DRIVER_LICENSE_IMG_UPLOAD_PATH}/${str}`,
-            (err) => {
-              if (err) {
-                throw new myError(
-                  "Файл устгах явцад алдаа гарлаа :" + err.message,
-                  400
-                );
-              }
-            }
-          );
 
-          file1.mv(
-            `${process.env.USER_DRIVER_LICENSE_IMG_UPLOAD_PATH}/${str}`,
-            (err) => {
-              if (err) {
-                throw new myError(
-                  "Файл хуулах явцад алдаа гарлаа :" + err.message,
-                  400
-                );
-              }
-            }
-          );
-        }
-
-        user = await Users.findByIdAndUpdate(item._id, data, {
+        auction = await Auction.findByIdAndUpdate(item._id, data, {
           new: true,
           runValidators: true,
         });
         res.status(200).json({
           success: true,
-          data: user,
+          data: auction,
         });
       } else {
-        user = await Users.findByIdAndUpdate(item._id, data, {
+        auction = await Auction.findByIdAndUpdate(item._id, data, {
           new: true,
           runValidators: true,
         });
         res.status(200).json({
           success: true,
-          data: user,
+          data: auction,
         });
       }
     } else {

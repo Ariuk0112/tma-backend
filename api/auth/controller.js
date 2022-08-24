@@ -95,18 +95,6 @@ module.exports = {
       });
     }
     message(user.phone, otp);
-    // await fast2sms({
-    //   message: `ТМА Баталгаажуулах код :  ${otp}`,
-    //   contactNumber: item.phone,
-    // });
-
-    // const accessToken = jwt.sign(
-    //   {
-    //     username: req.body.username,
-    //   },
-    //   process.env.SECRET,
-    //   { expiresIn: "300m" }
-    // );
   }),
   login: asyncHandler(async (req, res) => {
     if (req.body.username && req.body.password) {
@@ -163,11 +151,6 @@ module.exports = {
           otp: otp,
         },
       });
-      // send otp to phone number
-      // await fast2sms({
-      //   message: `Your OTP is ${otp}`,
-      //   contactNumber: user.phone,
-      // });
     }
   }),
 
